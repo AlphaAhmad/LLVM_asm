@@ -1,0 +1,67 @@
+++++++++++ BEFORE ++++++++++
+; ModuleID = 'input.txt'
+source_filename = "loop_test.ll"
+
+define void @matrix_traversal() {
+entry:
+  br label %outer.head
+
+outer.head:                                       ; preds = %outer.latch, %entry
+  %i = phi i32 [ 0, %entry ], [ %i.next, %outer.latch ]
+  %i.cmp = icmp slt i32 %i, 100
+  br i1 %i.cmp, label %inner.head, label %exit
+
+inner.head:                                       ; preds = %inner.latch, %outer.head
+  %j = phi i32 [ 0, %outer.head ], [ %j.next, %inner.latch ]
+  %j.cmp = icmp slt i32 %j, 100
+  br i1 %j.cmp, label %body, label %outer.latch
+
+body:                                             ; preds = %inner.head
+  br label %inner.latch
+
+inner.latch:                                      ; preds = %body
+  %j.next = add i32 %j, 1
+  br label %inner.head
+
+outer.latch:                                      ; preds = %inner.head
+  %i.next = add i32 %i, 1
+  br label %outer.head
+
+exit:                                             ; preds = %outer.head
+  ret void
+}
+
+
+++++++++++ AFTER ++++++++++
+; ModuleID = 'input.txt'
+source_filename = "loop_test.ll"
+
+define void @matrix_traversal() {
+entry:
+  br label %outer.head
+
+outer.head:                                       ; preds = %outer.latch, %entry
+  %i = phi i32 [ 0, %entry ], [ %i.next, %outer.latch ]
+  %i.cmp = icmp slt i32 %i, 100
+  br i1 %i.cmp, label %inner.head, label %exit
+
+inner.head:                                       ; preds = %inner.latch, %outer.head
+  %j = phi i32 [ 0, %outer.head ], [ %j.next, %inner.latch ]
+  %j.cmp = icmp slt i32 %j, 100
+  br i1 %j.cmp, label %body, label %outer.latch
+
+body:                                             ; preds = %inner.head
+  br label %inner.latch
+
+inner.latch:                                      ; preds = %body
+  %j.next = add i32 %j, 1
+  br label %inner.head
+
+outer.latch:                                      ; preds = %inner.head
+  %i.next = add i32 %i, 1
+  br label %outer.head
+
+exit:                                             ; preds = %outer.head
+  ret void
+}
+
